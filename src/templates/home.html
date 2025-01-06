@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" />
+        <title>Chat</title>
+    </head>
+    <body class="flex justify-center items-center bg-gray-800">
+        <div class="w-screen h-screen flex flex-col items-center pt-6">
+            <div class="w-5/6 h-1/6 flex flex-col items-center justify-center">
+                <h1 class="font-mono font-bold text-3xl text-gray-200 ">WebSocket Chat</h1>
+                <h2 class="font-mono font-bold text-md text-gray-300 pt-3">Your ID: <span id="ws-id"></span></h2>
+            </div>
+            <div class="w-4/6 h-4/6 flex flex-col items-center justify-end bg-gray-100 rounded-md mt-6 mb-6">
+                <ul class="w-full flex flex-col items-center overflow-y-auto" id='messages'>
+                </ul>
+                <form class="w-96 flex justify-around pt-2 pb-2" action="" onsubmit="sendMessage(event)">
+                    <input class="w-72 rounded-md pl-3" placeholder="Type your message" type="text" id="messageText" autocomplete="off" />
+                    <button class="w-16 text-center bg-gray-700 rounded-md text-gray-100">Send</button>
+                </form>
+            </div>
+
+        </div>
+        
+        <script>
+            
+            scrollToBottom = function () {
+                var relative = document.getElementById("messages");
+                relative.scrollTop = relative.scrollHeight;
+              };
+
+            var client_id = Date.now()
+            document.querySelector("#ws-id").textContent = client_id;
+            var ws = new WebSocket(`ws:/127.0.0.1:8000/ws/${client_id}`);
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.className = "text-center"
+                message.appendChild(content)
+                messages.appendChild(message)
+                scrollToBottom()
+            };
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
